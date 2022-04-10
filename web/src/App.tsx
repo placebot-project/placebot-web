@@ -16,7 +16,7 @@ function PlacebotLinks() {
 			{' | '}
 			<a
 				className="App-link"
-				href="https://vitejs.dev/guide/features.html"
+				href="https://github.com/thatretrodev/placebot-web"
 				target="_blank"
 				rel="noopener noreferrer"
 			>
@@ -26,31 +26,27 @@ function PlacebotLinks() {
 	);
 }
 
-let finished_loading_data = false;
+let interval_set = false;
 
 function App() {
 	const [configured, setConfigured] = useState<any>(null);
 	const [task, setTask] = useState("Loading...");
 
-	(async () => {
-		if (configured != null || task != "Loading..." || finished_loading_data) {
-			return;
-		}
-
-		let response = await fetch("http://localhost:8090/api/status");
-
-		let data = await response.json();
-
-		finished_loading_data = true;
-
-		if (data.configured == true) {
-			setTask(`Building ${data.image} at x: ${data.x}, y: ${data.y}`);
-			setConfigured(true);
-		}
-		else {
-			setConfigured(false);
-		}
-	})();
+	if (!interval_set) {
+		setInterval((async () => {
+			let response = await fetch("http://localhost:4000/api/status");
+	
+			let data = await response.json();
+	
+			if (data.configured == true) {
+				setTask(`Building ${data.image} at x: ${data.x}, y: ${data.y}`);
+				setConfigured(true);
+			}
+			else {
+				setConfigured(false);
+			}
+		}), 1000);
+	}
 
 	if (configured == null) {
 		return (
